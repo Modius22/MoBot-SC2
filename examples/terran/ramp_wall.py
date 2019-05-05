@@ -1,3 +1,7 @@
+import sys, os
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
+
 import random
 
 import sc2
@@ -5,6 +9,8 @@ from sc2 import Race, Difficulty
 from sc2.constants import *
 from sc2.player import Bot, Computer
 from sc2.position import Point2, Point3
+from sc2.unit import Unit
+from sc2.units import Units
 
 
 class RampWallBot(sc2.BotAI):
@@ -15,9 +21,8 @@ class RampWallBot(sc2.BotAI):
         else:
             cc = cc.first
 
-        if self.can_afford(SCV) and self.workers.amount < 16 and cc.noqueue:
+        if self.can_afford(SCV) and self.workers.amount < 16 and cc.is_idle:
             await self.do(cc.train(SCV))
-
 
         # Raise depos when enemies are nearby
         for depo in self.units(SUPPLYDEPOT).ready:
@@ -45,6 +50,22 @@ class RampWallBot(sc2.BotAI):
 
         depots = self.units(SUPPLYDEPOT) | self.units(SUPPLYDEPOTLOWERED)
 
+        # Draw ramp points
+        # def terrain_to_z_height(h):
+        #     return round(16 * h / 255, 2)
+
+        # for ramp in self.game_info.map_ramps:
+        #     for p in ramp.points:
+        #         h = self.get_terrain_height(p)
+        #         h2 = terrain_to_z_height(h)
+        #         pos = Point3((p.x, p.y, h2))
+        #         p0 = Point3((pos.x - 0.25, pos.y - 0.25, pos.z))
+        #         p1 = Point3((pos.x + 0.25, pos.y + 0.25, pos.z - 0.5))
+        #         print(f"drawing {p0} to {p1}")
+        #         self._client.debug_box_out(p0, p1, color=Point3((255, 0, 0)))
+        #
+        # await self._client.send_debug()
+
         # Filter locations close to finished supply depots
         if depots:
             depot_placement_positions = {d for d in depot_placement_positions if depots.closest_distance_to(d) > 1}
@@ -56,7 +77,7 @@ class RampWallBot(sc2.BotAI):
             # Choose any depot location
             target_depot_location = depot_placement_positions.pop()
             ws = self.workers.gathering
-            if ws: # if workers were found
+            if ws:  # if workers were found
                 w = ws.random
                 await self.do(w.build(SUPPLYDEPOT, target_depot_location))
 
@@ -65,17 +86,34 @@ class RampWallBot(sc2.BotAI):
             if self.units(BARRACKS).amount + self.already_pending(BARRACKS) > 0:
                 return
             ws = self.workers.gathering
-            if ws and barracks_placement_position: # if workers were found
+            if ws and barracks_placement_position:  # if workers were found
                 w = ws.random
                 await self.do(w.build(BARRACKS, barracks_placement_position))
 
+    async def on_building_construction_complete(self, unit: Unit):
+        print(f"Construction of building {unit} completed at {unit.position}.")
 
 
 def main():
-    sc2.run_game(sc2.maps.get("OdysseyLE"), [
-        Bot(Race.Terran, RampWallBot()),
-        Computer(Race.Zerg, Difficulty.Hard)
-    ], realtime=False)
+    map = random.choice(
+        [
+            # Most maps have 2 upper points at the ramp (len(self.main_base_ramp.upper) == 2)
+            "AutomatonLE",
+            "BlueshiftLE",
+            "CeruleanFallLE",
+            "KairosJunctionLE",
+            "ParaSiteLE",
+            "PortAleksanderLE",
+            "StasisLE",
+            "DarknessSanctuaryLE",
+            "ParaSiteLE",  # Has 5 upper points at the main ramp
+            "AcolyteLE",  # Has 4 upper points at the ramp to the in-base natural and 2 upper points at the small ramp
+        ]
+    )
+    sc2.run_game(
+        sc2.maps.get(map), [Bot(Race.Terran, RampWallBot()), Computer(Race.Zerg, Difficulty.Hard)], realtime=False
+    )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
