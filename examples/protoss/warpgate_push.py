@@ -111,7 +111,7 @@ class WarpGateBot(sc2.BotAI):
 
 
 def main():
-    sc2.run_game(sc2.maps.get("(2)CatalystLE"), [
+    sc2.run_game(sc2.maps.get("AbyssalReefLE"), [
         Bot(Race.Protoss, WarpGateBot()),
         Computer(Race.Protoss, Difficulty.Easy)
     ], realtime=False)

@@ -1,8 +1,8 @@
 import keras
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten
-from keras.layers import Conv2D, MaxPooling2D
-from keras.callbacks import TensorBoard
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout, Flatten
+from tensorflow.keras.layers import Conv2D, MaxPooling2D
+from tensorflow.keras.callbacks import TensorBoard
 import numpy as np
 import os
 import random
@@ -82,7 +82,7 @@ for i in range(hm_epochs):
 
         for file in all_files[current:current + increment]:
             full_path = os.path.join(train_data_dir, file)
-            data = np.load(full_path)
+            data = np.load(full_path, allow_pickle=True)
             data = list(data)
             for d in data:
                 choice = np.argmax(d[0])

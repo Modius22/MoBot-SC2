@@ -101,9 +101,9 @@ class ZergRushBot(sc2.BotAI):
                     self.queeen_started = True
 
 def main():
-    sc2.run_game(sc2.maps.get("(2)CatalystLE"), [
+    sc2.run_game(sc2.maps.get("AbyssalReefLE"), [
         Bot(Race.Zerg, ZergRushBot()),
-        Computer(Race.Terran, Difficulty.Medium)
+        Computer(Race.Terran, Difficulty.Hard)
     ], realtime=False, save_replay_as="ZvT.SC2Replay")
 
 if __name__ == '__main__':
