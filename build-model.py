@@ -1,4 +1,4 @@
-import keras  # Keras 2.1.2 and TF-GPU 1.9.0
+import keras
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Conv2D, MaxPooling2D
